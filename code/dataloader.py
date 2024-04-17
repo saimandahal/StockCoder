@@ -5,6 +5,7 @@ class StockData:
 
     def __init__(self, csv_paths):
         self.data = {}
+        # read csv files
         for path in csv_paths:
             stock_name = path.split('/')[-1].split('.')[0]
             self.data[stock_name] = pd.read_csv(path , dtype='unicode')
@@ -12,12 +13,13 @@ class StockData:
             self.data[stock_name].rename(columns=lambda x: x.strip(), inplace=True)
             
             self.data[stock_name] = self.data[stock_name].applymap(lambda x: x.strip() if isinstance(x, str) and x.startswith(' ') else (x.strip() if isinstance(x, str) else x))
-
+    # normalized the data 
     def normalizeCols(self,data, cols):
         temp_df = data.copy(deep = True)
         temp_df.loc[:,cols] = (temp_df.loc[:, cols] - temp_df.loc[:,cols].min())/(temp_df.loc[:, cols].max() - temp_df.loc[:,cols].min())
     
         return temp_df
+    # data cleaning and preprocessing
     def cleanData(self):
         all_dates = []
         for stock_name, stock_data in self.data.items():
@@ -31,10 +33,12 @@ class StockData:
 
             stock_data['Date'] = pd.to_datetime(stock_data['Date'])  
 
-
             all_dates.append(stock_data['Date'])
 
             self.data[stock_name] = stock_data
+        
+        # creating common date range
+
         sets = [set(lst) for lst in all_dates]
 
         included_values = set.intersection(*sets)
@@ -45,7 +49,7 @@ class StockData:
     def getModelInputsAndOutputs(self):
         model_inputs = []
         model_outputs = []
-        
+
         for stock_name, stock_data in self.data.items():
 
             required_columns = ['Open','High','Low','Close','Adj Close','Volume']
@@ -64,7 +68,7 @@ class StockData:
         max_length_1 = max(len(arr) for arr in model_outputs)
         model_output_padded = [np.pad(arr, ((0, max_length_1 - len(arr)), (0, 0)), mode='constant', constant_values=0) for arr in model_outputs]
 
-
+        # 
         stocks , days , input_feature_dim = np.array(model_inputs_padded).shape
         stocks , days , output_feature_dim = np.array(model_output_padded).shape
 
