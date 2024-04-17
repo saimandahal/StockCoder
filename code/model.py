@@ -404,4 +404,4 @@ mean_p = pd.DataFrame([mean_predicted], columns=df_predicted.columns)
 final_output = pd.concat([mean_A, mean_p], axis=0)
 final_output = final_output.T
 
-final_output.to_csv('/local/data/sdahal_p/stock/result/weather22.csv')
+final_output.to_csv('/local/data/sdahal_p/stock/result/stock1.csv')
