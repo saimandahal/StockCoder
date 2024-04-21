@@ -95,14 +95,26 @@ class StockData:
         model_inputs, model_outputs = self.getModelInputsAndOutputs()
         input_batches = []
         output_batches = []
-        window_size = 360
+        window_size = 238
         count = 0
+        for index in range(len(self.data.items())):
+            batch_input = self.generateBatches(model_inputs[:,index,:],1)
+            batch_output = self.generateBatches(model_outputs[:,index,:], 1)
+        
+            input_batches.append(batch_input)
+            output_batches.append(batch_output)
+        
+        input_batches = np.array(input_batches).reshape(-1,1,238,6)
+        output_batches = np.array(output_batches).reshape(-1,1,238,1)
 
 
-        input_batches = self.generateBatches(model_inputs, batch_size)
-        output_batches = self.generateBatches(model_outputs, batch_size)
+        return (input_batches,output_batches)
 
-        return input_batches, output_batches
+
+        # input_batches = self.generateBatches(model_inputs, batch_size)
+        # output_batches = self.generateBatches(model_outputs, batch_size)
+
+        # return input_batches, output_batches
         
         
     
@@ -137,13 +149,29 @@ class StockData:
         test_model_inputs_padded = np.concatenate(test_model_inputs_padded, axis = 1).reshape(days,stocks,input_feature_dim)
         test_model_output_padded =np.concatenate(test_model_output_padded, axis = 1).reshape(days,stocks,output_feature_dim)
 
-        test_input_batches = self.generateBatches(test_model_inputs_padded, 1)
-        test_output_batches = self.generateBatches(test_model_output_padded, 1)
+        input_batches = []
+        output_batches = []
+        window_size = 238
+        count = 0
+        for index in range(len(self.data.items())):
+            batch_input = self.generateBatches(test_model_inputs_padded[:,index,:],1)
+            batch_output = self.generateBatches(test_model_output_padded[:,index,:], 1)
+        
+            input_batches.append(batch_input)
+            output_batches.append(batch_output)
+        
+        input_batches = np.array(input_batches).reshape(-1,1,283,6)
+        output_batches = np.array(output_batches).reshape(-1,1,283,1)
 
-        return (test_input_batches, test_output_batches)
+
+        return (input_batches,output_batches)
+        # test_input_batches = self.generateBatches(test_model_inputs_padded, 1)
+        # test_output_batches = self.generateBatches(test_model_output_padded, 1)
+
+        # return (test_input_batches, test_output_batches)
 
 path = ['C:\\Users\\user\\Downloads\\StockFormer\\StockFormer\\data\\ADRE.csv',
-        # 'C:\\Users\\user\\Downloads\\StockFormer\\StockFormer\\data\\BBH.csv'
+        'C:\\Users\\user\\Downloads\\StockFormer\\StockFormer\\data\\BBH.csv'
         ]
 stock_loader = StockData(path)
 
@@ -153,4 +181,4 @@ test_input,test_output=stock_loader.getTestingData()
 train_input , train_output = stock_loader.getTrainingData()
 
 print(len(train_input))
-print((test_input))
+print(len(test_input))

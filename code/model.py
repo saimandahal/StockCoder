@@ -9,6 +9,9 @@ import torch.nn.functional as F
 
 import math
 import time
+
+import os
+
 import dataloader as dataloader
 
 if torch.cuda.is_available(): 
@@ -17,10 +20,56 @@ else:
     dev = "cpu" 
 device = torch.device(dev)
 
-csv_paths = ['C:\\Users\\user\\Downloads\\StockFormer\\StockFormer\\data\\ADRE.csv']
+csv_paths= [ '/local/data/sdahal_p/stock/data/stocks/ATNI.csv',
+            '/local/data/sdahal_p/stock/data/stocks/ATO.csv',
+            '/local/data/sdahal_p/stock/data/stocks/ATR.csv',
+            '/local/data/sdahal_p/stock/data/stocks/ATRC.csv',
+            '/local/data/sdahal_p/stock/data/stocks/ATRI.csv',
+            '/local/data/sdahal_p/stock/data/stocks/ATRO.csv',
+            '/local/data/sdahal_p/stock/data/stocks/ATRS.csv',
+            '/local/data/sdahal_p/stock/data/stocks/ATSG.csv',
+            '/local/data/sdahal_p/stock/data/stocks/ATV.csv',
+            '/local/data/sdahal_p/stock/data/stocks/ATVI.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AU.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AUB.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AUBN.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AUDC.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AUTO.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AUY.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AVA.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AVAV.csv',#
+            '/local/data/sdahal_p/stock/data/stocks/AVB.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AVD.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AVDL.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AVID.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AVK.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AVT.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AVY.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AWF.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AWRE.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AWX.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AXAS.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AXDX.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AXE.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AXGN.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AXL.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AXO.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AXS.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AXTI.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AYI.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AZN.csv',
+            '/local/data/sdahal_p/stock/data/stocks/AXTI.csv',
 
-            
-stock_loader = dataloader.StockData(csv_paths)
+            ]
+
+folder_path = '/local/data/sdahal_p/stock/data/technology/'
+
+files = os.listdir(folder_path)
+
+csv_files = [file for file in files if file.endswith('.csv')]
+csv_path = [os.path.join(folder_path, csv_file) for csv_file in csv_files]
+print(len(csv_path))
+stock_loader = dataloader.StockData(csv_path)
 
 stock_loader.cleanData()
 
@@ -31,37 +80,40 @@ train_input , train_output = stock_loader.getTrainingData()
 print(len(train_input))
 print(len(test_input))
 
+
 class PositionalEncoding(nn.Module):
 
-    def __init__(self, d_model: int, dropout: float = 0.1, max_len: int = 5000):
+    def __init__(self, d_model: int, dropout: float = 0.1, max_len: int = 4000):
         super().__init__()
         self.dropout = nn.Dropout(p=dropout)
-
-        position = torch.arange(max_len).unsqueeze(1).to(device=device)
-        div_term = torch.exp(torch.arange(0, d_model, 2) * (-math.log(10000.0) / d_model)).to(device = device)
+        pos = torch.arange(max_len).unsqueeze(1).to(device=device)
+        div = torch.exp(torch.arange(0, d_model, 2) * (-math.log(10000.0) / d_model)).to(device = device)
         pe = torch.zeros(max_len, 1, d_model).to(device=device)
-        pe[:, 0, 0::2] = torch.sin(position * div_term).to(device=device)
-        pe[:, 0, 1::2] = torch.cos(position * div_term).to(device=device)
+
+        pe[:, 0, 0::2] = torch.sin(pos * div).to(device=device)
+        pe[:, 0, 1::2] = torch.cos(pos * div).to(device=device)
+
         self.register_buffer('pe', pe)
 
     def forward(self, x):
 
-        batch_size, seq_len , embedding_dim = x.shape
+        batch_size, seguence_length , embed_dimension = x.shape
         
         x = x + self.pe[:x.size(0)]
         x = self.dropout(x)
         
-        seq_len , batch_size, embedding_dim = x.shape
+        seguence_length , batch_size, embed_dimension = x.shape
         
-        return x.reshape(batch_size,seq_len,embedding_dim)
+        return x.reshape(batch_size,seguence_length,embed_dimension)
 
+# Transfomer 
 class TransformerLayer(nn.Module):
-   def __init__(self, model_dim, n_heads):
+   def __init__(self, dimension_model, n_heads):
         super(TransformerLayer, self).__init__()
-        self.multihead_attn = MultiHeadAttention(model_dim, n_heads)
-        self.feed_forward = FeedForward(model_dim, model_dim * 4)
-        self.layer_norm1 = nn.LayerNorm(model_dim)
-        self.layer_norm2 = nn.LayerNorm(model_dim)
+        self.multihead_attn = MultiHeadAttention(dimension_model, n_heads)
+        self.feed_forward = FeedForward(dimension_model, dimension_model * 4)
+        self.layer_norm1 = nn.LayerNorm(dimension_model)
+        self.layer_norm2 = nn.LayerNorm(dimension_model)
         self.dropout = nn.Dropout(0.1)
    def forward(self, x):
         # Multi-head attention
@@ -74,10 +126,10 @@ class TransformerLayer(nn.Module):
         return x
 
 class FeedForward(nn.Module):
-    def __init__(self, model_dim, ff_dim):
+    def __init__(self, dimension_model, ff_dim):
         super(FeedForward, self).__init__()
-        self.fc1 = nn.Linear(model_dim, ff_dim)
-        self.fc2 = nn.Linear(ff_dim, model_dim)
+        self.fc1 = nn.Linear(dimension_model, ff_dim)
+        self.fc2 = nn.Linear(ff_dim, dimension_model)
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
@@ -85,16 +137,16 @@ class FeedForward(nn.Module):
         return x
 
 class MultiHeadAttention(nn.Module):
-    def __init__(self, model_dim, n_heads):
+    def __init__(self, dimension_model, n_heads):
         super(MultiHeadAttention, self).__init__()
-        self.model_dim = model_dim
+        self.dimension_model = dimension_model
         self.n_heads = n_heads
-        self.head_dim = model_dim // n_heads
-        assert self.head_dim * n_heads == model_dim, "Model"
-        self.q_linear = nn.Linear(model_dim, model_dim)
-        self.v_linear = nn.Linear(model_dim, model_dim)
-        self.k_linear = nn.Linear(model_dim, model_dim)
-        self.out = nn.Linear(model_dim, model_dim)
+        self.head_dim = dimension_model // n_heads
+        assert self.head_dim * n_heads == dimension_model, "Model"
+        self.q_linear = nn.Linear(dimension_model, dimension_model)
+        self.v_linear = nn.Linear(dimension_model, dimension_model)
+        self.k_linear = nn.Linear(dimension_model, dimension_model)
+        self.out = nn.Linear(dimension_model, dimension_model)
 
     def forward(self, query, key, value):
         batch_size = query.size(0)
@@ -111,40 +163,37 @@ class MultiHeadAttention(nn.Module):
         scores = F.softmax(scores, dim=-1)
 
         output = torch.matmul(scores, value)
-        output = output.permute(0, 2, 1, 3).contiguous().view(batch_size, -1, self.model_dim)
+        output = output.permute(0, 2, 1, 3).contiguous().view(batch_size, -1, self.dimension_model)
         # Final linear layer
         output = self.out(output)
         return output 
 
 
 class StockFormer(nn.Module):
-    def __init__(self, encoder_input_dim = 20, model_dim = 64, n_output_heads = 1,window = 3,
+    def __init__(self, input_dimension = 20, dimension_model = 64, n_output_heads = 1,window = 3,
                   seq_length = 10):
         super().__init__()
         
-        # Storing the passed argument on the class definition.
-        
-        self.model_dim = model_dim
-        self.encoder_input_dim = encoder_input_dim
+        self.dimension_model = dimension_model
+        self.input_dimension = input_dimension
         self.n_output_heads = n_output_heads
         self.seq_length = seq_length
         
-        # Linear Layers for the input.
-        
-        self.input_embed_1 = torch.nn.Linear(self.encoder_input_dim , int(self.model_dim/2))
-        self.input_embed_2 = torch.nn.Linear(int(self.model_dim/2) , self.model_dim)
+        # Embedding Layer.
+        self.input_embed_1 = torch.nn.Linear(self.input_dimension , int(self.dimension_model/2))
+        self.input_embed_2 = torch.nn.Linear(int(self.dimension_model/2) , self.dimension_model)
 
         self.input_dropout = torch.nn.Dropout(p = 0.10)
         
         # Positional Encoding
-        self.positional_encoding = PositionalEncoding(self.model_dim,0.2)
+        self.pos_embed = PositionalEncoding(self.dimension_model,0.2)
            
         # Transformer model definition.
-        self.transformer_layers = nn.ModuleList([TransformerLayer(model_dim=self.model_dim, n_heads=16) for _ in range(24)])
+        self.transformer_layers = nn.ModuleList([TransformerLayer(dimension_model=self.dimension_model, n_heads=16) for _ in range(16)])
         
         # Dimension Reduction.
         
-        initial_dim  = self.model_dim
+        initial_dim  = self.dimension_model
         
         self.dim_red_1 = torch.nn.Linear(initial_dim * 2 , int(initial_dim/2))
         self.dim_red_2 = torch.nn.Linear(int(initial_dim/2) , int(initial_dim/2))
@@ -153,10 +202,10 @@ class StockFormer(nn.Module):
         
         self.dim_red_dropout = torch.nn.Dropout(p = 0.05)
         
-        # Final output layer for the model.
+        # Final linear layer for the model.
         
-        self.decoder_layer_1 = torch.nn.Linear(self.seq_length * int(self.model_dim/8) ,self.seq_length * int(self.model_dim/16))    
-        self.decoder_layer_2 = torch.nn.Linear(self.seq_length * int(self.model_dim/16), self.seq_length)
+        self.final_linear_1 = torch.nn.Linear(self.seq_length * int(self.dimension_model/8) ,self.seq_length * int(self.dimension_model/16))    
+        self.final_linear_2 = torch.nn.Linear(self.seq_length * int(self.dimension_model/16), self.seq_length)
         
         # Activation Functions
         
@@ -180,13 +229,11 @@ class StockFormer(nn.Module):
 
         encoder_inputs = torch.from_numpy(encoder_inputs).to(dtype= torch.float32,device=device)
                 
-        # Getting the configuration of the passed data.
-
         encoder_batch_size=1
         
-        encoder_batch_size,encoder_sequence_length , encoder_input_dim = encoder_inputs.shape
+        encoder_batch_size,encoder_sequence_length , input_dimension = encoder_inputs.shape
 
-        embed_input_x = encoder_inputs.reshape(-1,self.encoder_input_dim)
+        embed_input_x = encoder_inputs.reshape(-1,self.input_dimension)
         
         embed_input_x = self.input_embed_1(embed_input_x)
         embed_input_x = self.activation_gelu(embed_input_x)
@@ -194,17 +241,17 @@ class StockFormer(nn.Module):
         embed_input_x = self.input_embed_2(embed_input_x)
         embed_input_x = self.activation_gelu(embed_input_x)
         
-        embed_input_x = embed_input_x.reshape(encoder_batch_size, encoder_sequence_length, self.model_dim)
+        embed_input_x = embed_input_x.reshape(encoder_batch_size, encoder_sequence_length, self.dimension_model)
         
-        # Applying positional encoding.
+        # Applying encoding.
         
-        x = self.positional_encoding(embed_input_x)
+        x = self.pos_embed(embed_input_x)
 
         for layer in self.transformer_layers:
             x = layer(x)
         
-        x = x.reshape(-1, self.model_dim)
-        embed_input_x = embed_input_x.reshape(-1,self.model_dim)
+        x = x.reshape(-1, self.dimension_model)
+        embed_input_x = embed_input_x.reshape(-1,self.dimension_model)
         
         x = torch.cat((x , embed_input_x),1)
         
@@ -224,20 +271,20 @@ class StockFormer(nn.Module):
         x = self.activation_relu(x)
         x= self.dropout_20(x)
         
-        x = x.reshape(-1, encoder_sequence_length * int(self.model_dim/8))
+        x = x.reshape(-1, encoder_sequence_length * int(self.dimension_model/8))
         
-        x= self.decoder_layer_1(x)
+        x= self.final_linear_1(x)
         x= self.activation_gelu(x)
         x = self.dropout_10(x)
         
-        x = self.decoder_layer_2(x)
+        x = self.final_linear_2(x)
         x = self.activation_identity(x)
         
         x= x.reshape(encoder_batch_size , encoder_sequence_length , self.n_output_heads)
         
         return x
-
-stock_model = StockFormer(encoder_input_dim = 6, model_dim = 512, n_output_heads = 1, seq_length = 38)
+# Model
+stock_model = StockFormer(input_dimension = 6, dimension_model = 512, n_output_heads = 1, seq_length = 63)
 
 stock_model = stock_model.to(device = device)
 
@@ -248,7 +295,7 @@ optimizer_stock = torch.optim.AdamW(stock_model.parameters(), lr= 0.0001, weight
 scheduler_stock = torch.optim.lr_scheduler.StepLR(optimizer_stock, step_size = 3 ,gamma = 0.6, last_epoch= -1, verbose=False)
 
 # Implementation Main
-def TrainModelSP(train_inputs, train_outputs, epoch_number,final_prev):
+def TrainStock(train_inputs, train_outputs, epoch_number):
 
     total_loss = 0
     total_batches = 0
@@ -274,15 +321,15 @@ def TrainModelSP(train_inputs, train_outputs, epoch_number,final_prev):
         optimizer_stock.step()
 
     print('Epoch Number: {} => Avg loss value : {} '.format(epoch_number, total_loss / (total_batches * 1 )))
-    
-    
-    return total_loss / (total_batches * 1 )
 
+    final_loss = total_loss / (total_batches * 1 )
+    
+    return final_loss
 
 
 # Training Section
-final_prev= torch.from_numpy(np.array([])).to(dtype=torch.float32, device= device)
 stock_model.train(True)
+
 
 train_epoch_avg_losses_stock = []
 start_time = time.time()
@@ -290,8 +337,7 @@ start_time = time.time()
 total_iterations=0
 
 loss_all_1 = []
-for index in range(20):
-
+for index in range(48):
 
     temp_holder_stock = list(zip(train_input, train_output))
     random.shuffle(temp_holder_stock)
@@ -299,7 +345,7 @@ for index in range(20):
     epoch_number = index+ 1
        
     train_input_batches_stock, train_output_batches_stock = zip(*temp_holder_stock)
-    error1= TrainModelSP(train_input_batches_stock, train_output_batches_stock,epoch_number ,final_prev )
+    error1= TrainStock(train_input_batches_stock, train_output_batches_stock,epoch_number )
     loss_all_1.append(error1)
    
     scheduler_stock.step()
@@ -312,9 +358,9 @@ loss_df1 = pd.DataFrame()
 
 loss_df1['loss_main1'] =pd.Series(loss_all_1)
 
-loss_df1.to_csv('/local/data/sdahal_p/stock/result/loss.csv', index= False)
+loss_df1.to_csv('/local/data/sdahal_p/stock/result/transloss2.csv', index= False)
 
-def TestModelSP(test_inputs, test_outputs):
+def TestStock(test_inputs, test_outputs):
     losses = []
     
     mse_stock = nn.MSELoss()
@@ -341,7 +387,7 @@ def TestModelSP(test_inputs, test_outputs):
     return (np.array(outputs), np.array(actual_outputs), np.array(outputs_loss))
 
 
-test_outputs_1_stock, test_outputs_actual_1_stock, test_losses_1_stock = TestModelSP(test_input,test_output)
+test_outputs_1_stock, test_outputs_actual_1_stock, test_losses_1_stock = TestStock(test_input,test_output)
 
 
 reshaped_data_output = [item[0] for item in test_outputs_1_stock]
@@ -352,7 +398,7 @@ df_predicted = pd.DataFrame()
 
 print(len(reshaped_data_output))
 for i in range(38):
-    column_name = f'P{i+1}' 
+    column_name = f'Stock{i+1}' 
     df_predicted[column_name] = [row[i][0] for row in reshaped_data_output]
     df_actual[column_name] = [row[i][0] for row in reshaped_data_actual]
 
@@ -365,4 +411,4 @@ mean_p = pd.DataFrame([mean_predicted], columns=df_predicted.columns)
 final_output = pd.concat([mean_A, mean_p], axis=0)
 final_output = final_output.T
 
-final_output.to_csv('/local/data/sdahal_p/stock/result/stock1.csv')
+final_output.to_csv('/local/data/sdahal_p/stock/result/trans2.csv')
