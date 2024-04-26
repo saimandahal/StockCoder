@@ -14,59 +14,8 @@ else:
     dev = "cpu" 
 device = torch.device(dev)
 
-csv_paths= [ '/local/data/sdahal_p/stock/data/stocks/ATNI.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATO.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATR.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATRC.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATRI.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATRO.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATRS.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATSG.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATV.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATVI.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AU.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AUB.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AUBN.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AUDC.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AUTO.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AUY.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AVA.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AVAV.csv',#
-            '/local/data/sdahal_p/stock/data/stocks/AVB.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AVD.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AVDL.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AVID.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AVK.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AVT.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AVY.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AWF.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AWRE.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AWX.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXAS.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXDX.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXE.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXGN.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXL.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXO.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXS.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXTI.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AYI.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AZN.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXTI.csv',
 
-            ]
-            
-# stock_loader = dataloader.StockData(csv_paths)
-
-# stock_loader.cleanData()
-
-# test_input,test_output=stock_loader.getTestingData()
-
-# train_input , train_output = stock_loader.getTrainingData()
-
-# print(len(train_input))
-# print(len(test_input))
-folder_path = '/local/data/sdahal_p/stock/data/technology/'
+folder_path = '/local/data/sdahal_p/stock/data/Finance/'
 import os
 files = os.listdir(folder_path)
 
@@ -83,7 +32,7 @@ train_input , train_output = stock_loader.getTrainingData()
 
 print(len(train_input))
 print(len(test_input))
-class StockFormer(nn.Module):
+class StockCoder(nn.Module):
     def __init__(self, encoder_input_dim=6, model_dim=512, n_output_heads=1, seq_length=63):
         super().__init__()
 
@@ -120,7 +69,7 @@ class StockFormer(nn.Module):
 
         return output
 
-stock_model = StockFormer(encoder_input_dim=6, model_dim=512, n_output_heads=1, seq_length=63)
+stock_model = StockCoder(encoder_input_dim=6, model_dim=512, n_output_heads=1, seq_length=125)
 stock_model = stock_model.to(device=device)
 
 mean_squared_error_stock = nn.MSELoss()
@@ -215,7 +164,7 @@ df_actual = pd.DataFrame()
 df_predicted = pd.DataFrame()
 # print(reshaped_data_output)
 # quit(0)
-for i in range(46):
+for i in range(125):
     column_name = f'Stock{i+1}' 
     df_predicted[column_name] = [row[i][0] for row in reshaped_data_output]
     df_actual[column_name] = [row[i][0] for row in reshaped_data_actual]
