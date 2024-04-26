@@ -372,6 +372,10 @@ loss_df1['loss_main1'] =pd.Series(loss_all_1)
 
 loss_df1.to_csv('/local/data/sdahal_p/stock/result/transloss4.csv', index= False)
 
+
+# Testing
+stock_model.eval()
+
 def TestStock(test_inputs, test_outputs):
     losses = []
     
