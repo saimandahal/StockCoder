@@ -1,2 +1,2 @@
-# StockFormer
-Stock closing price prediction using self attention
+# StockCoder
+Stock closing price prediction using self-attention
