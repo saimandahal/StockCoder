@@ -215,7 +215,7 @@ df_actual = pd.DataFrame()
 df_predicted = pd.DataFrame()
 # print(reshaped_data_output)
 # quit(0)
-for i in range(38):
+for i in range(46):
     column_name = f'Stock{i+1}' 
     df_predicted[column_name] = [row[i][0] for row in reshaped_data_output]
     df_actual[column_name] = [row[i][0] for row in reshaped_data_actual]

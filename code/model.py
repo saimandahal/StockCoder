@@ -59,16 +59,27 @@ csv_paths= [ '/local/data/sdahal_p/stock/data/stocks/ATNI.csv',
             '/local/data/sdahal_p/stock/data/stocks/AYI.csv',
             '/local/data/sdahal_p/stock/data/stocks/AZN.csv',
             '/local/data/sdahal_p/stock/data/stocks/AXTI.csv',
+            '/local/data/sdahal_p/stock/data/Finance/ABCB.csv',
+            '/local/data/sdahal_p/stock/data/Finance/AEL.csv',
+            '/local/data/sdahal_p/stock/data/Finance/AFB.csv',
+            # '/local/data/sdahal_p/stock/data/Finance/BHB.csv',
+            '/local/data/sdahal_p/stock/data/Finance/BKN.csv',
+            '/local/data/sdahal_p/stock/data/Finance/GS.csv',
+            '/local/data/sdahal_p/stock/data/Finance/HIX.csv',
+            '/local/data/sdahal_p/stock/data/Finance/CIA.csv',
+            '/local/data/sdahal_p/stock/data/Finance/COLB.csv',
+
 
             ]
 
-folder_path = '/local/data/sdahal_p/stock/data/technology/'
+folder_path = '/local/data/sdahal_p/stock/data/Finance/'
 
 files = os.listdir(folder_path)
 
 csv_files = [file for file in files if file.endswith('.csv')]
 csv_path = [os.path.join(folder_path, csv_file) for csv_file in csv_files]
 print(len(csv_path))
+
 stock_loader = dataloader.StockData(csv_path)
 
 stock_loader.cleanData()
@@ -80,6 +91,7 @@ train_input , train_output = stock_loader.getTrainingData()
 print(len(train_input))
 print(len(test_input))
 
+# quit(0)
 
 class PositionalEncoding(nn.Module):
 
@@ -169,7 +181,7 @@ class MultiHeadAttention(nn.Module):
         return output 
 
 
-class StockFormer(nn.Module):
+class StockCoder(nn.Module):
     def __init__(self, input_dimension = 20, dimension_model = 64, n_output_heads = 1,window = 3,
                   seq_length = 10):
         super().__init__()
@@ -189,7 +201,7 @@ class StockFormer(nn.Module):
         self.pos_embed = PositionalEncoding(self.dimension_model,0.2)
            
         # Transformer model definition.
-        self.transformer_layers = nn.ModuleList([TransformerLayer(dimension_model=self.dimension_model, n_heads=16) for _ in range(16)])
+        self.transformer_layers = nn.ModuleList([TransformerLayer(dimension_model=self.dimension_model, n_heads=8) for _ in range(16)])
         
         # Dimension Reduction.
         
@@ -284,7 +296,7 @@ class StockFormer(nn.Module):
         
         return x
 # Model
-stock_model = StockFormer(input_dimension = 6, dimension_model = 512, n_output_heads = 1, seq_length = 63)
+stock_model = StockCoder(input_dimension = 6, dimension_model = 512, n_output_heads = 1, seq_length = 125)
 
 stock_model = stock_model.to(device = device)
 
@@ -337,7 +349,7 @@ start_time = time.time()
 total_iterations=0
 
 loss_all_1 = []
-for index in range(48):
+for index in range(32):
 
     temp_holder_stock = list(zip(train_input, train_output))
     random.shuffle(temp_holder_stock)
@@ -358,7 +370,7 @@ loss_df1 = pd.DataFrame()
 
 loss_df1['loss_main1'] =pd.Series(loss_all_1)
 
-loss_df1.to_csv('/local/data/sdahal_p/stock/result/transloss2.csv', index= False)
+loss_df1.to_csv('/local/data/sdahal_p/stock/result/transloss4.csv', index= False)
 
 def TestStock(test_inputs, test_outputs):
     losses = []
@@ -397,7 +409,7 @@ df_actual = pd.DataFrame()
 df_predicted = pd.DataFrame()
 
 print(len(reshaped_data_output))
-for i in range(38):
+for i in range(125):
     column_name = f'Stock{i+1}' 
     df_predicted[column_name] = [row[i][0] for row in reshaped_data_output]
     df_actual[column_name] = [row[i][0] for row in reshaped_data_actual]
@@ -411,4 +423,4 @@ mean_p = pd.DataFrame([mean_predicted], columns=df_predicted.columns)
 final_output = pd.concat([mean_A, mean_p], axis=0)
 final_output = final_output.T
 
-final_output.to_csv('/local/data/sdahal_p/stock/result/trans2.csv')
+final_output.to_csv('/local/data/sdahal_p/stock/result/trans4.csv')
