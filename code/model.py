@@ -1,3 +1,4 @@
+
 import torch
 import torch.nn as nn
 import random
@@ -20,58 +21,7 @@ else:
     dev = "cpu" 
 device = torch.device(dev)
 
-csv_paths= [ '/local/data/sdahal_p/stock/data/stocks/ATNI.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATO.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATR.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATRC.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATRI.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATRO.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATRS.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATSG.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATV.csv',
-            '/local/data/sdahal_p/stock/data/stocks/ATVI.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AU.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AUB.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AUBN.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AUDC.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AUTO.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AUY.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AVA.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AVAV.csv',#
-            '/local/data/sdahal_p/stock/data/stocks/AVB.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AVD.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AVDL.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AVID.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AVK.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AVT.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AVY.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AWF.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AWRE.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AWX.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXAS.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXDX.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXE.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXGN.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXL.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXO.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXS.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXTI.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AYI.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AZN.csv',
-            '/local/data/sdahal_p/stock/data/stocks/AXTI.csv',
-            '/local/data/sdahal_p/stock/data/Finance/ABCB.csv',
-            '/local/data/sdahal_p/stock/data/Finance/AEL.csv',
-            '/local/data/sdahal_p/stock/data/Finance/AFB.csv',
-            # '/local/data/sdahal_p/stock/data/Finance/BHB.csv',
-            '/local/data/sdahal_p/stock/data/Finance/BKN.csv',
-            '/local/data/sdahal_p/stock/data/Finance/GS.csv',
-            '/local/data/sdahal_p/stock/data/Finance/HIX.csv',
-            '/local/data/sdahal_p/stock/data/Finance/CIA.csv',
-            '/local/data/sdahal_p/stock/data/Finance/COLB.csv',
-
-
-            ]
-
+# Data import
 folder_path = '/local/data/sdahal_p/stock/data/Finance/'
 
 files = os.listdir(folder_path)
@@ -83,16 +33,12 @@ print(len(csv_path))
 stock_loader = dataloader.StockData(csv_path)
 
 stock_loader.cleanData()
-
+# Data
 test_input,test_output=stock_loader.getTestingData()
 
 train_input , train_output = stock_loader.getTrainingData()
 
-print(len(train_input))
-print(len(test_input))
-
-# quit(0)
-
+# Positional Encoding
 class PositionalEncoding(nn.Module):
 
     def __init__(self, d_model: int, dropout: float = 0.1, max_len: int = 4000):
