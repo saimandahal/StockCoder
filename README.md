@@ -1,7 +1,7 @@
 # StockCoder: Stock price prediction using Transformer architecture
 ## Washington State University
 
-Stock closing price prediction using self-attention
+Stock closing price prediction using self-attention. Exploring spatial temporal task, advancing beyond the traditional view of stocks as standalone entities.
 
 
 To provide accurate forecasts to aid investors and analysts in making decisions on the stocks. Determined the correlation between the stocks
