@@ -1,5 +1,5 @@
 # StockCoder: Stock price prediction using Transformer architecture
-## Saiman Dahal. Washington State University
+##Washington State University
 
 Stock closing price prediction using self-attention
 
