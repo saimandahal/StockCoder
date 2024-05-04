@@ -46,7 +46,6 @@ class StockCoder(nn.Module):
         self.fc2 = nn.Linear(256, 128)
         self.fc3 = nn.Linear(128, 1)
         self.dropout = nn.Dropout(0.5)
-        # self.fc = nn.Linear(self.model_dim, self.seq_length * self.n_output_heads)
 
     def forward(self, encoder_inputs):
         encoder_inputs = encoder_inputs.astype(np.float32)
@@ -79,7 +78,7 @@ optimizer_stock = torch.optim.AdamW(stock_model.parameters(), lr=0.0001, weight_
 scheduler_stock = torch.optim.lr_scheduler.StepLR(optimizer_stock, step_size=3, gamma=0.6, last_epoch=-1, verbose=False)
 
 # Training
-def TrainModelSP(train_inputs, train_outputs, epoch_number, final_prev):
+def StockTrain(train_inputs, train_outputs, epoch_number, final_prev):
     total_loss = 0
     total_batches = 0
 
@@ -120,7 +119,7 @@ for index in range(60):
     epoch_number = index + 1
        
     train_input_batches_stock, train_output_batches_stock = zip(*temp_holder_stock)
-    error1 = TrainModelSP(train_input_batches_stock, train_output_batches_stock, epoch_number, final_prev)
+    error1 = StockTrain(train_input_batches_stock, train_output_batches_stock, epoch_number, final_prev)
     loss_all_1.append(error1)
    
     scheduler_stock.step()

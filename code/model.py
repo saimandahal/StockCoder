@@ -22,7 +22,7 @@ else:
 device = torch.device(dev)
 
 # Data import
-folder_path = '/local/data/sdahal_p/stock/data/Finance/'
+folder_path = '/data/Finance/'
 
 files = os.listdir(folder_path)
 

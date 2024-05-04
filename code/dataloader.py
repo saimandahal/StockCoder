@@ -61,8 +61,6 @@ class StockData:
             inputs = stock_data[required_columns].values
             outputs = stock_data['Close'].values.reshape(-1, 1)
 
-            # merged_values = np.insert(inputs, [0,1,2], spatial_feature, axis=1) 
-
             model_inputs.append(inputs)
             model_outputs.append(outputs)
         
