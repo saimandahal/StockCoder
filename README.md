@@ -3,7 +3,6 @@
 
 Stock closing price prediction using self-attention
 
-Dataset Link: https://www.kaggle.com/datasets/jacksoncrow/stock-market-dataset/data
 
 To provide accurate forecasts to aid investors and analysts in making decisions on the stocks. Determined the correlation between the stocks
 #
@@ -12,8 +11,5 @@ encoder and decoder. Self-attention is an attention mechanism relating different
 sequence to compute a representation of the sequence. The input sequence is split and thus the relation is
 checked in terms of three paraments: Query, Key and Value
 #
+Dataset Link: https://www.kaggle.com/datasets/jacksoncrow/stock-market-dataset/data
 #
-
- A diagram of a program
-
-Description automatically generated
