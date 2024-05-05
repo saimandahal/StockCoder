@@ -22,7 +22,7 @@ else:
 device = torch.device(dev)
 
 # Data import
-folder_path = '/data/Finance/'
+folder_path = '../data/Finance/'
 
 files = os.listdir(folder_path)
 
@@ -242,7 +242,7 @@ class StockCoder(nn.Module):
         
         return x
 # Model
-stock_model = StockCoder(input_dimension = 6, dimension_model = 512, n_output_heads = 1, seq_length = 125)
+stock_model = StockCoder(input_dimension = 6, dimension_model = 512, n_output_heads = 1, seq_length = 2)
 
 stock_model = stock_model.to(device = device)
 
@@ -311,13 +311,13 @@ for index in range(32):
     
 end_time = time.time()
 print("Time Elapsed", end_time - start_time)
+quit(0)
 
 loss_df1 = pd.DataFrame()
 
 loss_df1['loss_main1'] =pd.Series(loss_all_1)
 
 loss_df1.to_csv('/local/data/sdahal_p/stock/result/transloss4.csv', index= False)
-
 
 # Testing
 stock_model.eval()
